@@ -7,6 +7,13 @@ const fileUpload=require('express-fileupload');
 const _ = require('lodash');
 const app= express();
 
+app.use(bodyParser.json());
+  
+  app.use(bodyParser.urlencoded({
+    parameterLimit: 100000,
+    extended: true 
+  }));
+app.use(cors());
 app.use(fileUpload(
     {
         createParentPath:true,
@@ -17,9 +24,7 @@ app.use(fileUpload(
 ))
 
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-app.use(cors());
+
 
 
 
@@ -39,21 +44,23 @@ app.post('/apply',[
     const {firstname,lastname,email,phone} = req.body;
     const errors = validationResult(req)
     if (!errors.isEmpty()) {
-      return res.status(422).json({ errors: errors.array() })
+      return res.status(302).json({errors: errors.array() })
     }
     //allowed doc types
-    const supportedDataTypes=["application/pdf",
-    "application/msword", 
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"]
- 
+    const supportedDataTypes=["pdf","doc", "docx"]
+    function getFileExtension(filename) {
+        return (/[.]/.exec(filename)) ? /[^.]+$/.exec(filename)[0] : undefined;
+      }
     try {
-        if(!req.files){
+        if(!req.files || !req.files.resume){
             res.send({
                 status:false,
                 message:'No file uploaded please upload!'
             });
         }
-        else if (req.files.resume && !_.includes(supportedDataTypes,req.files.resume.mimetype)){
+       
+        else if ( req.files.resume.name && !_.includes(supportedDataTypes,getFileExtension(req.files.resume.name)))
+        {
             res.send({
                 status:false,
                 message:'Please upload valid format on your CV (pdf,doc,docx)'
