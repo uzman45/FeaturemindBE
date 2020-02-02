@@ -2,7 +2,7 @@
   "name": "featuremindbe",
   "version": "1.0.0",
   "description": "Assignment API for Featuremind",
-  "main": "index.js",
+  "main": "applyapi.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node applyapi.js"
